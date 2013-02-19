@@ -2,6 +2,7 @@ table#movies th.hilite {
 background-color: yellow;
 }
 
+
 #banner{
 text-decoration: none;
 color: white;
