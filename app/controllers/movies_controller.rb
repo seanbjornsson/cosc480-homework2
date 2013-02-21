@@ -10,6 +10,7 @@ class MoviesController < ApplicationController
 	end
 
 	def index
+		#update session info if it there are new filter/sort parameters
 		if params[:param] != nil
 			session[:param] = params[:param]
 		end
@@ -17,19 +18,23 @@ class MoviesController < ApplicationController
 			session[:ratings] = params[:ratings]
 		end
 		@current_session = session
-		@sort = session[:param]
+		#check if the sort parameter is valid
+		@sort = session[:param] unless !((session[:param] == 'title') | (session[:param] == 'release_date'))
 		@all_ratings = Movie.ratings
 		@all_ratings_hash = arr_to_hash(@all_ratings)
-
+		
+		#this ensures that the first time someone visits the page all the boxes are checked
 		if @checked_ratings == nil
 			@checked_ratings = @all_ratings
-		end	
+		end
 		@checked_ratings_hash = session[:ratings] unless session[:ratings] == nil
 		@checked_ratings = @checked_ratings_hash.keys unless @checked_ratings_hash == nil
 
+		#fill movie variable for view, sorted if there is a sort parameter
 		@movies = Movie.find_all_by_rating(@checked_ratings,:order => @sort)
 		@title_hilite = ("hilite" if @sort=="title")
 		@release_date_hilite = ("hilite" if @sort=="release_date")
+		#redirect if there are no ratings in the URL.
 		if params[:ratings]==nil
 			@checked_ratings_hash = arr_to_hash(@checked_ratings)
 			flash.keep
