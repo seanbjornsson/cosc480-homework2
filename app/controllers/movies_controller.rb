@@ -10,23 +10,29 @@ class MoviesController < ApplicationController
 	end
 
 	def index
-		debugger
-		@sort = params[:param]
+		if params[:param] != nil
+			session[:param] = params[:param]
+		end
+		if params[:ratings] != nil
+			session[:ratings] = params[:ratings]
+		end
+		@current_session = session
+		@sort = session[:param]
 		@all_ratings = Movie.ratings
 		@all_ratings_hash = arr_to_hash(@all_ratings)
 
 		if @checked_ratings == nil
 			@checked_ratings = @all_ratings
 		end	
-		@checked_ratings_hash = params[:ratings] unless params[:ratings] == nil
+		@checked_ratings_hash = session[:ratings] unless session[:ratings] == nil
 		@checked_ratings = @checked_ratings_hash.keys unless @checked_ratings_hash == nil
 
 		@movies = Movie.find_all_by_rating(@checked_ratings,:order => @sort)
 		@title_hilite = ("hilite" if @sort=="title")
 		@release_date_hilite = ("hilite" if @sort=="release_date")
-
 		if params[:ratings]==nil
 			@checked_ratings_hash = arr_to_hash(@checked_ratings)
+			flash.keep
 			redirect_to :action => 'index', :ratings => @checked_ratings_hash, :param => @sort
 		end
   end
